@@ -4,7 +4,6 @@ declare_id!("Aj1GHyUXV6Vg5d5ipPEyPHTzmWvi52oByFaqnQ3bHEiT");
 
 #[program]
 pub mod tokenextensions {
-    use anchor_spl::associated_token::Create;
 
     use super::*;
 
@@ -26,7 +25,7 @@ pub mod tokenextensions {
 pub struct Initialize {}
 #[derive(Accounts)]
 pub struct CreatMint<'info>{
-    #[account(init, seeds = [b"spl-token-mint".as_ref(),], bump, payer = payer,mint::authority = payer, mint::decimals = 0,mint::freeze_authority = payer)]
+    #[account(init, seeds = [b"spl-token-mint".as_ref(),], bump, payer = payer,mint::authority = payer, mint::decimals = 0, mint::freeze_authority = payer)]
     pub spl_token_mint: Account<'info,Mint>,
     #[account(mut)]
     pub payer: Signer<'info>,
