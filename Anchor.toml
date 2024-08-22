@@ -11,7 +11,7 @@ tokenextensions = "Aj1GHyUXV6Vg5d5ipPEyPHTzmWvi52oByFaqnQ3bHEiT"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "testnet"
+cluster = "devnet"
 wallet = "./id.json"
 
 [scripts]
