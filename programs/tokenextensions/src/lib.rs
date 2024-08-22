@@ -1,10 +1,9 @@
-use anchor_lang::{prelude::*, solana_program::rent};
+use anchor_lang::prelude::*;
 use anchor_spl::token::{Mint, Token};
 declare_id!("Aj1GHyUXV6Vg5d5ipPEyPHTzmWvi52oByFaqnQ3bHEiT");
 
 #[program]
 pub mod tokenextensions {
-
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
