@@ -143,6 +143,37 @@ describe("tokenextensions", () => {
     } catch (err) {
       console.log(err);
     }
-});
+  });
+  it("should freeze token account of payer wallet ", async () => {
+    try {
+      const [splTokenMint, _1] = await findSplTokenMintAddress();
+
+      const [vaultMint, _2] = await findVaultAddress();
+
+      const [payerMintAta, _3] = await findAssociatedTokenAccountAddress(
+        payer.publicKey,
+        splTokenMint
+      );
+
+      const tx = await program.methods
+        .freezeTokenAccount()
+        .accounts({
+          splTokenMint: splTokenMint,
+          vault: vaultMint,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          systemProgram: SystemProgram.programId,
+          payerMintAta: payerMintAta,
+          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          payer: payer.publicKey,
+        })
+        .signers([payer])
+        .rpc();
+
+      console.log("Your transaction signature", tx);
+    } catch (err) {
+      console.log(err);
+    }
+  });
 });
 
