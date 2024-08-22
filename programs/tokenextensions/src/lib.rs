@@ -1,9 +1,12 @@
 use anchor_lang::{prelude::*, Bump};
-use anchor_spl::{associated_token::AssociatedToken, token::{self, Mint, Token, TokenAccount,FreezeAccount}};
+use anchor_spl::{associated_token::AssociatedToken, token::{self, Mint, Token, TokenAccount,FreezeAccount,Burn,ThawAccount}};
 declare_id!("Aj1GHyUXV6Vg5d5ipPEyPHTzmWvi52oByFaqnQ3bHEiT");
 
 #[program]
 pub mod tokenextensions {
+
+    use anchor_lang::solana_program::stake::state::NEW_WARMUP_COOLDOWN_RATE;
+    use anchor_spl::token_2022::spl_token_2022::instruction::thaw_account;
 
     use super::*;
 
@@ -55,6 +58,30 @@ pub mod tokenextensions {
             Ok(())
     }
 
+    pub fn burn_token(ctx: Context<BurnToken>) -> Result<()>{
+        let cpi_context = CpiContext::new(
+            ctx.accounts.token_program.to_account_info(),
+            Burn{
+                from : ctx.accounts.payer_mint_ata.to_account_info(),
+                mint : ctx.accounts.spl_token_mint.to_account_info(),
+                authority : ctx.accounts.payer.to_account_info()
+            }
+        );
+        token::burn(cpi_context, 1)?;
+        Ok(())
+    }
+    pub fn unfreeze_token_account(ctx: Context<UnfreezeTokenAccount>) -> Result<()>{
+        let cip_context = CpiContext::new(
+            ctx.accounts.token_program.to_account_info(),
+            ThawAccount{
+                account : ctx.accounts.payer_mint_ata.to_account_info(),
+                mint : ctx.accounts.spl_token_mint.to_account_info(),
+                authority : ctx.accounts.payer.to_account_info(),
+            }
+        );
+        token::thaw_account(cip_context)?;
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -66,7 +93,13 @@ pub struct BurnToken<'info>{
     #[account(seeds = [b"vault"], bump = vault.bump)]
     pub vault : Account<'info,Vault>,
     #[account(mut)]
-    pub payer : Signer<'info>
+    pub payer : Signer<'info>,
+    #[account(mut, associated_token::mint = spl_token_mint, associated_token::authority = payer)]
+    pub payer_mint_ata : Box<Account<'info,TokenAccount>>,
+    pub system_program : Program<'info,System>,
+    pub token_program : Program<'info,Token>,
+    pub rent : Sysvar<'info, Rent>,
+    pub associated_token_program : Program<'info,AssociatedToken>
 }
 #[derive(Accounts)]
 pub struct UnfreezeTokenAccount<'info>{
